@@ -30,7 +30,7 @@ export GOTIFY_PLUGINSDIR=$GOTIFY_UPLOADEDIMAGESDIR
 $dir/gotify-linux-amd64 >/dev/null&
 gotify_pid="$!"
 
-sleep 1;
+sleep 2;
 app_token=$(curl --silent --user admin:admin \
 	"http://$GOTIFY_SERVER_LISTENADDR:$GOTIFY_SERVER_PORT/application" \
 	-F description=test-app-for-ci \
