@@ -12,7 +12,7 @@ cat > "${payload}" <&0
 #debug="$(jq -r '.source.debug // "false"' < "${payload}")"
 
 url="$(jq -r '.source.url' < "${payload}")"
-token="$(jq -r '.source.token' < "${payload}")"
+app_token="$(jq -r '.source.appToken' < "${payload}")"
 message="$(jq -r '.params.message' < "${payload}")"
 title="$(jq -r '.params.title' < "${payload}")"
 priority="$(jq -r '.params.priority' < "${payload}")"
@@ -23,7 +23,7 @@ if ! [[ $priority =~ $re ]] ; then
 	priority=0
 fi
 
-notification="$(curl "${url}/message?token=${token}" \
+notification="$(curl "${url}/message?token=${app_token}" \
 	-F "title=${title}" \
 	-F "message=${message}" \
 	-F "priority=${priority}" \
