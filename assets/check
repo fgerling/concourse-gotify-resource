@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euxo pipefail
+
+payload=$(mktemp /tmp/resource-check.XXXXXX)
+cat > "${payload}" <&0
+
+>&2 printf "\n=====================\n"
+>&2 cat $payload | jq 
+>&2 printf "\n=====================\n"
+
+#debug="$(jq -r '.source.debug // "false"' < "${payload}")"
+
+
+url="$(jq -r '.source.url' < "${payload}")"
+token="$(jq -r '.source.token' < "${payload}")"
+client_token="$(jq -r '.source.clientToken' < "${payload}")"
+cur_version_id="$(jq -r '.version.id' < "${payload}")"
+
+re='^[0-9]+$'
+if ! [[ $cur_version_id =~ $re ]] ; then
+	# no current version -> return last message
+	curl "${url}/message?token=${client_token}" | jq "[.messages[] | {id: .id|tostring, date: .date, message: .message, title: .title}] | sort_by(.id) | reverse | [.[0]]" 
+else
+	curl "${url}/message?token=${client_token}" | jq "[.messages[] | select( .id >= ${cur_version_id}) | {id: .id|tostring, date: .date, message: .message, title: .title}] | sort_by(.id)"
+fi

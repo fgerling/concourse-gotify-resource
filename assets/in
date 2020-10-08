@@ -1,0 +1,45 @@
+#!/bin/bash
+set -euxo pipefail
+
+cd "${1}"
+payload=$(mktemp /tmp/resource-in.XXXXXX)
+cat > "${payload}" <&0
+
+>&2 printf "\n=====================\n"
+>&2 cat $payload | jq
+>&2 printf "\n=====================\n"
+
+url="$(jq -r '.source.url' < "${payload}")"
+token="$(jq -r '.source.token' < "${payload}")"
+client_token="$(jq -r '.source.clientToken' < "${payload}")"
+version_id="$(jq -r '.version.id' < "${payload}")"
+
+re='^[0-9]+$'
+if ! [[ $version_id =~ $re ]] ; then
+	# no valid id? we need a version!
+	   exit 1
+fi
+
+notification=$(curl "${url}/message?token=${client_token}" | jq ".messages[] | select( .id == "${version_id}") | {id: .id|tostring, date: .date, message: .message, title: .title}")
+
+# ensure that notification is a valid json payload
+[ -z "$notification" ] && notification="{}"
+
+title="$(echo "${notification}" | jq -r '.title')"
+message="$(echo "${notification}" | jq -r '.message')"
+date="$(echo "${notification}" | jq -r '.date')"
+
+echo $title > title
+echo $message > message
+echo $date > date
+
+metadata=$(cat <<EOF
+"metadata": [
+  { "name": "date", "value": "$date" },
+  { "name": "title", "value": "$title" },
+  { "name": "message", "value": "$message" }
+]
+EOF
+)
+
+echo '{"version":'${notification}', '${metadata}'}'
