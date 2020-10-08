@@ -30,8 +30,11 @@ export GOTIFY_PLUGINSDIR=$GOTIFY_UPLOADEDIMAGESDIR
 $dir/gotify-linux-amd64 >/dev/null&
 gotify_pid="$!"
 
-sleep 3;
-app_token=$(curl --silent --user admin:admin "${url}/application" -F description=test-app-for-ci -F name=test-app | jq -r '.token')
+sleep 1;
+app_token=$(curl --silent --user admin:admin \
+	"http://$GOTIFY_SERVER_LISTENADDR:$GOTIFY_SERVER_PORT/application" \
+	-F description=test-app-for-ci \
+	-F name=test-app | jq -r '.token')
 
 payload='{"source":{"appToken":"'${app_token}'","url":"http://localhost:8088"}, "params":{"message":"test-message", "title":"test-title","priority":5}}'
 
