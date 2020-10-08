@@ -3,7 +3,6 @@ set -euxo pipefail
 
 function cleanup {
 	kill $gotify_pid
-	echo killed $gotify_pid
 }
 trap cleanup EXIT
 
@@ -30,7 +29,9 @@ export GOTIFY_PLUGINSDIR=$GOTIFY_UPLOADEDIMAGESDIR
 $dir/gotify-linux-amd64 >/dev/null&
 gotify_pid="$!"
 
-sleep 2;
+# from stackoverflow https://stackoverflow.com/questions/27599839/how-to-wait-for-an-open-port-with-netcat
+timeout 10 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 0.1; done' $GOTIFY_SERVER_LISTENADDR $GOTIFY_SERVER_PORT
+
 app_token=$(curl --silent --user admin:admin \
 	"http://$GOTIFY_SERVER_LISTENADDR:$GOTIFY_SERVER_PORT/application" \
 	-F description=test-app-for-ci \
@@ -71,7 +72,7 @@ check_is_equal "$response" '.metadata[2].name' "message" || errors+=('.metadata[
 check_is_equal "$response" '.metadata[2].value' "test-message" || errors+=('.metadata[2].value')
 
 if [ ${#errors[@]} -eq 0 ]; then
-	echo "No errors found"
+	echo "No error found"
 	exit 0
 else
 	echo "Errors in:"
