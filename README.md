@@ -1,4 +1,5 @@
 # concourse-gotify-resource
+
 A Concourse Resource for sending notifications to [Gotify](https://gotify.net/).
 
 Inspired by [michaellihs/rocketchat-notification-resource](https://github.com/michaellihs/rocketchat-notification-resource).
