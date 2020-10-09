@@ -1,4 +1,5 @@
 # concourse-gotify-resource
+![CI-Test](https://concourse-ci.17xf.de/api/v1/teams/main/pipelines/concourse-gotify-resource/jobs/test/badge)
 
 A Concourse Resource for sending notifications to [Gotify](https://gotify.net/).
 
