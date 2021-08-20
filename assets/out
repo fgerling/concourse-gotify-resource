@@ -20,14 +20,14 @@ priority="$(jq -r '.params.priority' < "${payload}")"
 
 re='^[0-9]+$'
 if ! [[ $priority =~ $re ]] ; then
-	priority=0
+    priority=0
 fi
 
 notification="$(curl "${url}/message?token=${app_token}" \
-	-F "title=${title}" \
-	-F "message=${message}" \
-	-F "priority=${priority}" \
-	| jq "{id: .id|tostring, date: .date, message: .message, title: .title}")"
+    -F "title=${title}" \
+    -F "message=${message}" \
+    -F "priority=${priority}" \
+    | jq "{id: .id|tostring, date: .date, message: .message, title: .title}")"
 
 # ensure that $notification is a valid json payload
 [ -z "$notification" ] && notification="{}"
